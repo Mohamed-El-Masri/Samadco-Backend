@@ -1,6 +1,6 @@
 using Domain.Entities.Orders;
-using Domain.Entities.Users;
 using Domain.Entities.Quotes;
+using Domain.Entities.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -27,11 +27,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
 
         builder.Property(x => x.Status)
             .IsRequired()
-            .HasConversion<int>();
+            .HasConversion<string>()
+            .HasMaxLength(30);
 
         builder.Property(x => x.PaymentStatus)
             .IsRequired()
-            .HasConversion<int>();
+            .HasConversion<string>()
+            .HasMaxLength(30);
 
         builder.Property(x => x.DepositAmount)
             .IsRequired()
@@ -54,7 +56,13 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         builder.Property(x => x.CancelledAtUtc);
 
         builder.Property(x => x.CancellationReason)
-            .HasMaxLength(1000);
+            .HasMaxLength(500);
+
+        // Base Entity Properties
+        builder.Property(x => x.CreatedAtUtc)
+            .IsRequired();
+
+        builder.Property(x => x.UpdatedAtUtc);
 
         // Relationships
         builder.HasOne<User>()
@@ -68,16 +76,28 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .OnDelete(DeleteBehavior.Restrict);
 
         // Indexes
-        builder.HasIndex(x => x.UserId);
+        builder.HasIndex(x => x.UserId)
+            .HasDatabaseName("IX_Orders_UserId");
 
-        builder.HasIndex(x => x.QuoteId);
+        builder.HasIndex(x => x.QuoteId)
+            .HasDatabaseName("IX_Orders_QuoteId");
 
-        builder.HasIndex(x => x.Status);
+        builder.HasIndex(x => x.Status)
+            .HasDatabaseName("IX_Orders_Status");
 
-        builder.HasIndex(x => x.PaymentStatus);
+        builder.HasIndex(x => x.PaymentStatus)
+            .HasDatabaseName("IX_Orders_PaymentStatus");
 
-        builder.HasIndex(x => x.CreatedAtUtc);
+        builder.HasIndex(x => x.TrackingNumber)
+            .HasDatabaseName("IX_Orders_TrackingNumber");
 
-        builder.HasIndex(x => x.TrackingNumber);
+        builder.HasIndex(x => x.CreatedAtUtc)
+            .HasDatabaseName("IX_Orders_CreatedAtUtc");
+
+        builder.HasIndex(x => new { x.UserId, x.Status })
+            .HasDatabaseName("IX_Orders_UserId_Status");
+
+        builder.HasIndex(x => new { x.Status, x.PaymentStatus })
+            .HasDatabaseName("IX_Orders_Status_PaymentStatus");
     }
 }

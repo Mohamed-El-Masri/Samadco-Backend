@@ -13,6 +13,7 @@ public sealed class Quote : BaseEntity, IAggregateRoot
 
     public Guid QuoteRequestId { get; private set; }
     public Guid UserId { get; private set; }
+    public Guid DistributorId { get; private set; }
     
     /// <summary>
     /// أسطر عرض السعر
@@ -34,10 +35,11 @@ public sealed class Quote : BaseEntity, IAggregateRoot
     // للاستخدام مع EF Core
     private Quote() { }
 
-    private Quote(Guid quoteRequestId, Guid userId, DateTime expiresAtUtc, string? notes = null)
+    private Quote(Guid quoteRequestId, Guid userId, Guid distributorId, DateTime expiresAtUtc, string? notes = null)
     {
         QuoteRequestId = quoteRequestId;
         UserId = userId;
+        DistributorId = distributorId;
         ExpiresAtUtc = expiresAtUtc;
         Notes = notes;
         TotalBeforeTax = 0;
@@ -49,7 +51,7 @@ public sealed class Quote : BaseEntity, IAggregateRoot
     /// <summary>
     /// إنشاء عرض سعر جديد
     /// </summary>
-    public static Quote Create(Guid quoteRequestId, Guid userId, DateTime? expiresAtUtc = null, string? notes = null)
+    public static Quote Create(Guid quoteRequestId, Guid userId, Guid distributorId, DateTime? expiresAtUtc = null, string? notes = null)
     {
         var expiry = expiresAtUtc ?? DateTime.UtcNow.AddDays(14); // صالح لمدة 14 يوم افتراضياً
         
@@ -59,7 +61,7 @@ public sealed class Quote : BaseEntity, IAggregateRoot
         if (!string.IsNullOrWhiteSpace(notes) && notes.Length > 1000)
             throw new DomainRuleViolationException("Quote notes cannot exceed 1000 characters");
 
-        var quote = new Quote(quoteRequestId, userId, expiry, 
+        var quote = new Quote(quoteRequestId, userId, distributorId, expiry, 
             string.IsNullOrWhiteSpace(notes) ? null : notes.Trim());
 
         return quote;

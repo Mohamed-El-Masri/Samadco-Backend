@@ -61,8 +61,22 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
             specsBuilder.Ignore(s => s.Value);
         });
 
-        // Images collection - ignore for now as it's a complex collection
-        builder.Ignore(x => x.Images);
+        // Images collection - configure as owned entities
+        builder.OwnsMany(x => x.Images, imagesBuilder =>
+        {
+            imagesBuilder.ToTable("ProductImages");
+            
+            imagesBuilder.Property(i => i.Url)
+                .HasMaxLength(500)
+                .IsRequired();
+                
+            imagesBuilder.Property(i => i.Width);
+            
+            imagesBuilder.Property(i => i.Height);
+            
+            imagesBuilder.Property(i => i.MimeType)
+                .HasMaxLength(100);
+        });
 
         // Relationships
         builder.HasOne<SellerProfile>()
