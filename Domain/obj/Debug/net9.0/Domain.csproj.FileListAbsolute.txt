@@ -1,0 +1,11 @@
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.GeneratedMSBuildEditorConfig.editorconfig
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.AssemblyInfoInputs.cache
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.AssemblyInfo.cs
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.csproj.CoreCompileInputs.cache
+E:\Gallery\Samadco\Semadco\Domain\bin\Debug\net9.0\Domain.deps.json
+E:\Gallery\Samadco\Semadco\Domain\bin\Debug\net9.0\Domain.dll
+E:\Gallery\Samadco\Semadco\Domain\bin\Debug\net9.0\Domain.pdb
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.dll
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\refint\Domain.dll
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\Domain.pdb
+E:\Gallery\Samadco\Semadco\Domain\obj\Debug\net9.0\ref\Domain.dll
