@@ -1,5 +1,5 @@
 using Domain.Entities.Distributors;
-using Domain.ValueObjects.Location;
+using Infrastructure.Converters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -32,65 +32,61 @@ public class DistributorConfiguration : IEntityTypeConfiguration<Distributor>
         builder.Property(x => x.RegionAr)
             .HasMaxLength(100);
 
+        builder.Property(x => x.ContactEmail)
+            .IsRequired()
+            .HasMaxLength(255)
+            .HasConversion<EmailConverter>();
+
+        builder.Property(x => x.ContactPhone)
+            .IsRequired()
+            .HasMaxLength(20)
+            .HasConversion<PhoneNumberConverter>();
+
         builder.Property(x => x.IsActive)
+            .IsRequired()
             .HasDefaultValue(true);
 
-        // Value Objects
-        builder.OwnsOne(x => x.ContactEmail, emailBuilder =>
+        // Value Objects - Address
+        builder.OwnsOne(x => x.Address, address =>
         {
-            emailBuilder.Property(e => e.Value)
-                .IsRequired()
-                .HasMaxLength(320)
-                .HasColumnName("ContactEmail");
-        });
-
-        builder.OwnsOne(x => x.ContactPhone, phoneBuilder =>
-        {
-            phoneBuilder.Property(p => p.Value)
-                .IsRequired()
-                .HasMaxLength(20)
-                .HasColumnName("ContactPhone");
-        });
-
-        // Address Value Object Configuration
-        builder.OwnsOne(x => x.Address, addressBuilder =>
-        {
-            addressBuilder.Property(a => a.Country)
-                .HasMaxLength(100)
-                .HasColumnName("AddressCountry");
-
-            addressBuilder.Property(a => a.City)
-                .HasMaxLength(100)
-                .HasColumnName("AddressCity");
-
-            addressBuilder.Property(a => a.Line1)
+            address.Property(a => a.Street)
                 .HasMaxLength(200)
-                .HasColumnName("AddressLine1");
+                .HasColumnName("Address_Street");
 
-            addressBuilder.Property(a => a.Line2)
-                .HasMaxLength(200)
-                .HasColumnName("AddressLine2");
+            address.Property(a => a.City)
+                .HasMaxLength(100)
+                .HasColumnName("Address_City");
 
-            addressBuilder.Property(a => a.PostalCode)
+            address.Property(a => a.State)
+                .HasMaxLength(100)
+                .HasColumnName("Address_State");
+
+            address.Property(a => a.PostalCode)
                 .HasMaxLength(20)
-                .HasColumnName("AddressPostalCode");
-        });
+                .HasColumnName("Address_PostalCode");
 
-        // Base Entity Properties
-        builder.Property(x => x.CreatedAtUtc)
-            .IsRequired();
+            address.Property(a => a.Country)
+                .HasMaxLength(100)
+                .HasColumnName("Address_Country");
+
+            address.Property(a => a.Latitude)
+                .HasColumnType("decimal(10,8)")
+                .HasColumnName("Address_Latitude");
+
+            address.Property(a => a.Longitude)
+                .HasColumnType("decimal(11,8)")
+                .HasColumnName("Address_Longitude");
+        });
 
         // Indexes
-        builder.HasIndex(x => x.Name)
-            .HasDatabaseName("IX_Distributors_Name");
+        builder.HasIndex(x => x.Name);
 
-        builder.HasIndex(x => x.Region)
-            .HasDatabaseName("IX_Distributors_Region");
+        builder.HasIndex(x => x.Region);
 
-        builder.HasIndex(x => x.IsActive)
-            .HasDatabaseName("IX_Distributors_IsActive");
+        builder.HasIndex(x => x.IsActive);
 
-        builder.HasIndex(x => x.CreatedAtUtc)
-            .HasDatabaseName("IX_Distributors_CreatedAtUtc");
+        builder.HasIndex(x => x.ContactEmail);
+
+        builder.HasIndex(x => new { x.Region, x.IsActive });
     }
 }

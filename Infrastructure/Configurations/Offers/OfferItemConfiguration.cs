@@ -1,5 +1,4 @@
 using Domain.Entities.Offers;
-using Domain.Entities.Products;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -12,50 +11,97 @@ public class OfferItemConfiguration : IEntityTypeConfiguration<OfferItem>
 {
     public void Configure(EntityTypeBuilder<OfferItem> builder)
     {
+        // اسم الجدول
         builder.ToTable("OfferItems");
 
-        // Primary Key
-        builder.HasKey(x => x.Id);
+        // المفتاح الأساسي
+        builder.HasKey(oi => oi.Id);
 
-        // Properties
-        builder.Property(x => x.OfferId)
+        // معلومات العنصر
+        builder.Property(oi => oi.OfferId)
             .IsRequired();
 
-        builder.Property(x => x.ProductId)
+        builder.Property(oi => oi.ProductId)
             .IsRequired();
 
-        builder.Property(x => x.Quantity)
-            .IsRequired();
+        // الأسعار والخصومات
+        builder.Property(oi => oi.OriginalPrice)
+            .IsRequired()
+            .HasPrecision(18, 2);
 
-        builder.Property(x => x.SnapshotName)
-            .HasMaxLength(200);
+        builder.Property(oi => oi.OfferPrice)
+            .IsRequired()
+            .HasPrecision(18, 2);
 
-        // Base Entity Properties
-        builder.Property(x => x.CreatedAtUtc)
-            .IsRequired();
+        builder.Property(oi => oi.DiscountPercentage)
+            .HasPrecision(5, 2);
 
-        builder.Property(x => x.UpdatedAtUtc);
+        // الكمية المتاحة
+        builder.Property(oi => oi.AvailableQuantity)
+            .HasDefaultValue(null);
 
-        // Relationships
+        builder.Property(oi => oi.SoldQuantity)
+            .IsRequired()
+            .HasDefaultValue(0);
+
+        // الفعالية
+        builder.Property(oi => oi.IsActive)
+            .IsRequired()
+            .HasDefaultValue(true);
+
+        // ملاحظات
+        builder.Property(oi => oi.Notes)
+            .HasMaxLength(500);
+
+        // علاقات
         builder.HasOne<Offer>()
-            .WithMany(x => x.Items)
-            .HasForeignKey(x => x.OfferId)
+            .WithMany(o => o.Items)
+            .HasForeignKey(oi => oi.OfferId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne<Product>()
+        builder.HasOne<Domain.Entities.Products.Product>()
             .WithMany()
-            .HasForeignKey(x => x.ProductId)
+            .HasForeignKey(oi => oi.ProductId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        // BaseEntity properties
+        ConfigureBaseEntity(builder);
+
         // Indexes
-        builder.HasIndex(x => x.OfferId)
+        builder.HasIndex(oi => oi.OfferId)
             .HasDatabaseName("IX_OfferItems_OfferId");
 
-        builder.HasIndex(x => x.ProductId)
+        builder.HasIndex(oi => oi.ProductId)
             .HasDatabaseName("IX_OfferItems_ProductId");
 
-        builder.HasIndex(x => new { x.OfferId, x.ProductId })
+        builder.HasIndex(oi => oi.IsActive)
+            .HasDatabaseName("IX_OfferItems_IsActive");
+
+        builder.HasIndex(oi => new { oi.OfferId, oi.ProductId })
             .IsUnique()
             .HasDatabaseName("IX_OfferItems_OfferId_ProductId");
+
+        builder.HasIndex(oi => new { oi.OfferId, oi.IsActive })
+            .HasDatabaseName("IX_OfferItems_OfferId_IsActive");
+    }
+
+    private static void ConfigureBaseEntity<T>(EntityTypeBuilder<T> builder) where T : Domain.Common.BaseEntity
+    {
+        builder.Property(e => e.Id)
+            .IsRequired();
+
+        builder.Property(e => e.CreatedAtUtc)
+            .IsRequired()
+            .HasColumnType("datetime2");
+
+        builder.Property(e => e.UpdatedAtUtc)
+            .HasColumnType("datetime2");
+
+        builder.Property(e => e.ConcurrencyStamp)
+            .IsConcurrencyToken()
+            .HasMaxLength(36);
+
+        // Domain Events ignored (not persisted)
+        builder.Ignore(e => e.DomainEvents);
     }
 }

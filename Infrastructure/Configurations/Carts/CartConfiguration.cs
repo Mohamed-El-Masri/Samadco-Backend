@@ -20,25 +20,25 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.Property(x => x.UserId)
             .IsRequired();
 
-        builder.Property(x => x.Notes)
-            .HasMaxLength(1000);
+        builder.Property(x => x.Status)
+            .IsRequired()
+            .HasConversion<string>()
+            .HasMaxLength(20);
 
-        builder.Property(x => x.LastTouchedUtc)
-            .IsRequired();
+        builder.Property(x => x.TotalAmount)
+            .HasPrecision(18, 2);
 
-        builder.Property(x => x.IsLocked)
-            .HasDefaultValue(false);
+        builder.Property(x => x.DiscountAmount)
+            .HasPrecision(18, 2);
+
+        builder.Property(x => x.FinalAmount)
+            .HasPrecision(18, 2);
 
         // Base Entity Properties
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
         // Relationships
-        builder.HasOne<Domain.Entities.Users.User>()
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasMany<CartItem>()
             .WithOne()
             .HasForeignKey(x => x.CartId)
@@ -48,11 +48,8 @@ public class CartConfiguration : IEntityTypeConfiguration<Cart>
         builder.HasIndex(x => x.UserId)
             .HasDatabaseName("IX_Carts_UserId");
 
-        builder.HasIndex(x => x.IsLocked)
-            .HasDatabaseName("IX_Carts_IsLocked");
-
-        builder.HasIndex(x => x.LastTouchedUtc)
-            .HasDatabaseName("IX_Carts_LastTouchedUtc");
+        builder.HasIndex(x => x.Status)
+            .HasDatabaseName("IX_Carts_Status");
 
         builder.HasIndex(x => x.CreatedAtUtc)
             .HasDatabaseName("IX_Carts_CreatedAtUtc");

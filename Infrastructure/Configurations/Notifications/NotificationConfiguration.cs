@@ -53,13 +53,6 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
         builder.Property(x => x.CreatedAtUtc)
             .IsRequired();
 
-        // Relationships
-        builder.HasOne<Domain.Entities.Users.User>()
-            .WithMany()
-            .HasForeignKey(x => x.UserId)
-            .OnDelete(DeleteBehavior.SetNull)
-            .IsRequired(false);
-
         // Indexes
         builder.HasIndex(x => x.UserId)
             .HasDatabaseName("IX_Notifications_UserId");
